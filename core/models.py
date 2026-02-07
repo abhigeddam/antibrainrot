@@ -1,0 +1,30 @@
+from django.db import models
+from django.contrib.auth.models import User
+
+class TelegramUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='telegram_user')
+    chat_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    verification_token = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} ({self.chat_id})"
+
+class PollResponse(models.Model):
+    ACTIVITY_CHOICES = [
+        ('1', 'Short Form Brain Rot'),
+        ('2', 'Long Form Brain Rot'),
+        ('3', 'Upskill'),
+        ('4', 'Friends & Family'),
+        ('5', 'Hobbies'),
+        ('6', 'Movies/Series'),
+        ('others', 'Others'),
+    ]
+
+    telegram_user = models.ForeignKey(TelegramUser, on_delete=models.CASCADE, related_name='responses')
+    activity = models.CharField(max_length=20, choices=ACTIVITY_CHOICES)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    poll_id = models.CharField(max_length=100, blank=True, null=True) # ID of the poll in Telegram
+
+    def __str__(self):
+        return f"{self.telegram_user.user.username} - {self.activity} at {self.timestamp}"

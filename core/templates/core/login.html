@@ -1,0 +1,25 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="card" style="max-width: 400px; margin: 4rem auto;">
+    <h2>Welcome Back</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        <div style="margin-bottom: 1rem;">
+            <label style="display:block; margin-bottom:0.5rem; color: #bababa;">Username</label>
+            <input type="text" name="username" required>
+        </div>
+        <div style="margin-bottom: 1rem;">
+            <label style="display:block; margin-bottom:0.5rem; color: #bababa;">Password</label>
+            <input type="password" name="password" required>
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">Login</button>
+    </form>
+
+    <p style="text-align: center; margin-top: 1.5rem; color: #888;">
+        New here? <a href="{% url 'register' %}" style="color: var(--accent-color);">Create an account</a>
+    </p>
+</div>
+{% endblock %}

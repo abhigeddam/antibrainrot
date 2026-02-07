@@ -1,0 +1,34 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 4rem auto; text-align: center;">
+    <h2>Connect Telegram</h2>
+    <p>To start tracking, you need to link your Telegram account.</p>
+
+    <div style="margin: 2rem 0;">
+        <a href="{{ deep_link }}" class="btn" target="_blank">
+            Connect Bot
+        </a>
+    </div>
+
+    <p style="color: #888; font-size: 0.9em;">
+        Clicking the button will open Telegram. Click <strong>Start</strong> to verify your account.
+    </p>
+</div>
+
+<script>
+    function checkStatus() {
+        fetch("{% url 'check_connection_status' %}")
+            .then(response => response.json())
+            .then(data => {
+                if (data.connected) {
+                    window.location.href = "{% url 'dashboard' %}";
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    // Check every 2 seconds
+    setInterval(checkStatus, 2000);
+</script>
+{% endblock %}

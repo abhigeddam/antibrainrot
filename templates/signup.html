@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="/static/css/login.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <h1>Create Account</h1>
+                <p>Join us today</p>
+            </div>
+
+            <form method="POST" class="login-form">
+                {% csrf_token %}
+                
+                {% if error %}
+                <div class="error-message">{{ error }}</div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        placeholder="Choose a username" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        placeholder="Enter your email" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Create a password" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password_confirm">Confirm Password</label>
+                    <input 
+                        type="password" 
+                        id="password_confirm" 
+                        name="password_confirm" 
+                        placeholder="Confirm your password" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="chat_id">Telegram Chat ID</label>
+                    <input
+                        type="text"
+                        id="chat_id"
+                        name="chat_id"
+                        placeholder="Enter your Telegram Chat ID"
+                        required
+                    >
+                    <small>How to get your chat ID? Message <b>@userinfobot</b> on Telegram.</small>
+                </div>
+
+                <button type="submit" class="login-btn">Sign Up</button>
+            </form>
+
+            <div class="login-footer">
+                <div class="signup-link">
+                    Already have an account? <a href="/login/">Sign in</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

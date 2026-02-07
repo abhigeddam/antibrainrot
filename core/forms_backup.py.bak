@@ -1,0 +1,10 @@
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+
+class RegisterForm(UserCreationForm):
+    telegram_chat_id = forms.CharField(max_length=100, required=True, help_text="Send /start to our bot to get your Chat ID")
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'telegram_chat_id']

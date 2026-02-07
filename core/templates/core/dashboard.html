@@ -1,0 +1,188 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div
+    style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h2 style="margin-bottom: 0;">Your Overview</h2>
+        <p style="color: #888; margin-top: 0.5rem;">Tracking your time distribution</p>
+    </div>
+
+    <div style="background: #2d2d2d; padding: 5px; border-radius: 25px;">
+        <a href="?range=day" class="filter-btn {% if time_range == 'day' %}active{% endif %}">Day</a>
+        <a href="?range=week" class="filter-btn {% if time_range == 'week' %}active{% endif %}">Week</a>
+        <a href="?range=month" class="filter-btn {% if time_range == 'month' %}active{% endif %}">Month</a>
+        <a href="?range=year" class="filter-btn {% if time_range == 'year' %}active{% endif %}">Year</a>
+    </div>
+</div>
+
+<style>
+    .filter-btn {
+        color: #fff;
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        transition: background 0.3s;
+        display: inline-block;
+    }
+
+    .filter-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .filter-btn.active {
+        background: var(--accent-color);
+        color: #000;
+        font-weight: bold;
+    }
+
+    .stat-card {
+        background: #2d2d2d;
+        padding: 1.5rem;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 0.5rem 0;
+    }
+
+    .stat-label {
+        color: #888;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .brainrot {
+        color: #cf6679;
+    }
+
+    .productive {
+        color: #03dac6;
+    }
+
+    .neutral {
+        color: #bb86fc;
+    }
+</style>
+
+<div
+    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+    <div class="stat-card">
+        <div class="stat-label">Total Tracked</div>
+        <div class="stat-value">{{ insights.total_hours }} <span style="font-size: 1rem; color: #888;">hrs</span></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Brain Rot</div>
+        <div class="stat-value brainrot">{{ insights.brain_rot_count }} <span style="font-size: 1rem;">hrs</span></div>
+        <div style="font-size: 0.8rem; color: #cf6679;">{{ insights.brain_rot_percentage }}%</div>
+
+        <!-- Trend -->
+        <div class="trend" style="color: {% if insights.br_delta > 0 %}#cf6679{% else %}#03dac6{% endif %};">
+            {% if insights.br_delta > 0 %}▲{% else %}▼{% endif %} {{ insights.br_delta_abs }}%
+            <span style="color: #666; font-size: 0.7em;">vs prev</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Productive</div>
+        <div class="stat-value productive">{{ insights.productive_count }} <span style="font-size: 1rem;">hrs</span>
+        </div>
+        <div style="font-size: 0.8rem; color: #03dac6;">{{ insights.productive_percentage }}%</div>
+
+        <!-- Trend -->
+        <div class="trend" style="color: {% if insights.prod_delta > 0 %}#03dac6{% else %}#cf6679{% endif %};">
+            {% if insights.prod_delta > 0 %}▲{% else %}▼{% endif %} {{ insights.prod_delta_abs }}%
+            <span style="color: #666; font-size: 0.7em;">vs prev</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Leisure</div>
+        <div class="stat-value neutral">{{ insights.neutral_count }} <span style="font-size: 1rem;">hrs</span></div>
+        <div style="font-size: 0.8rem; color: #bb86fc;">{{ insights.neutral_percentage }}%</div>
+
+        <!-- Trend -->
+        <div class="trend" style="color: {% if insights.neu_delta > 0 %}#bb86fc{% else %}#888{% endif %};">
+            {% if insights.neu_delta > 0 %}▲{% else %}▼{% endif %} {{ insights.neu_delta_abs }}%
+            <span style="color: #666; font-size: 0.7em;">vs prev</span>
+        </div>
+    </div>
+</div>
+
+<style>
+    .trend {
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+        font-weight: bold;
+    }
+</style>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+    <!-- Chart Section -->
+    <div class="card" style="grid-column: span 2;">
+        <h3>Activity Distribution</h3>
+        <div style="height: 300px;">
+            <canvas id="activityChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Recent Logs Section -->
+    <div class="card">
+        <h3>Recent Logs</h3>
+        {% if recent_responses %}
+        <ul style="list-style: none; padding: 0;">
+            {% for response in recent_responses %}
+            <li style="padding: 10px 0; border-bottom: 1px solid #333; display: flex; justify-content: space-between;">
+                <span>{{ response.get_activity_display }}</span>
+                <span style="color: #888; font-size: 0.9em;">
+                    {{ response.timestamp|date:"H:i" }}
+                </span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>No activity recorded yet. Wait for the hourly poll!</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    const ctx = document.getElementById('activityChart').getContext('2d');
+    const data = {
+        labels: {{ chart_labels| safe }},
+    datasets: [{
+        label: 'Hours Spent',
+        data: {{ chart_data| safe }},
+        backgroundColor: [
+        'rgba(255, 99, 132, 0.7)',
+        'rgba(54, 162, 235, 0.7)',
+        'rgba(75, 192, 192, 0.7)',
+        'rgba(153, 102, 255, 0.7)',
+        'rgba(255, 159, 64, 0.7)',
+        'rgba(201, 203, 207, 0.7)'
+    ],
+        borderWidth: 1
+        }]
+    };
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: data,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        color: '#e0e0e0'
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
