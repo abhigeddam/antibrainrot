@@ -7,12 +7,18 @@ The concept is simple: instead of manually logging time, a Telegram bot prompts 
 ## Features
 
 - **Telegram Bot specific:** Doesn't require a constantly running separate process for the bot; it's integrated into the Django management commands.
-- **Deep Linking:** One-click connection between your web account and Telegram account.
 - **Activity Categories:**
     - **Brain Rot:** Short-form content, doomscrolling, etc.
     - **Productive:** Upskilling, work, hobbies.
     - **Leisure:** Movies, series, socializing.
 - **Dashboard:** Visualizes time distribution with Chart.js and provides comparative insights (e.g., "You spent 15% less time on reels this week compared to last").
+
+![Connect Telegram Screenshot](images/connect_telegram.png)
+
+- **Deep Linking:** One-click connection between your web account and Telegram account.
+
+![Dashboard Screenshot](images/dashboard.png)
+
 
 ## Local Setup
 
